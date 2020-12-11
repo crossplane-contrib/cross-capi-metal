@@ -1,0 +1,27 @@
+# XRD for MySQL Database
+apiVersion: apiextensions.crossplane.io/v1alpha1
+kind: CompositeResourceDefinition
+metadata:
+  name: instances.mysql.crossplane.io
+spec:
+  group: mysql.crossplane.io
+  names:
+    kind: Instance
+    plural: instances
+  versions:
+  - name: v1alpha1
+    served: true
+    referenceable: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            properties:
+            # TODO: decide what properties we want to be configurable
+              projectId:
+                type: string
+                description: Equinix Metal Project ID.
+            required:
+            - projectId

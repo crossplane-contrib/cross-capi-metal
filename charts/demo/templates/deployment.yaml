@@ -1,0 +1,59 @@
+# App Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: default
+  name: demo
+spec:
+  selector:
+    matchLabels:
+      app: demo
+  template:
+    metadata:
+      labels:
+        app: demo
+    spec:
+      containers:
+      - image: hasheddan/cross-capi-metal-demo:latest
+        name: demo-app
+        # TODO: create secret with these values which can be passed through helm
+        # chart (need to also be passed to the MySQL Equinix metal machine for
+        # it to set them in DB).
+        env:
+          - name: DB_HOST
+            valueFrom:
+              secretKeyRef:
+                name: mysqlconn
+                key: endpoint
+          - name: DB_USER
+            valueFrom:
+              secretKeyRef:
+                name: mysqlconn
+                key: username
+          - name: DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: mysqlconn
+                key: password
+        ports:
+          - containerPort: 8080
+      initContainers:
+        - name: init-mysql
+          image: ubuntu:latest
+          command: ['/bin/bash', '-c', 'apt-get update && apt-get install -y mysql-client && mysql -u $DB_USER -p$DB_PASSWORD -h $DB_HOST -e "CREATE DATABASE IF NOT EXISTS capi;"']
+          env:
+            - name: DB_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: mysqlconn
+                  key: endpoint
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: mysqlconn
+                  key: username
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysqlconn
+                  key: password

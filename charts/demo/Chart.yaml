@@ -1,0 +1,12 @@
+apiVersion: v1
+appVersion: 0.0.1
+description: cross-capi-metal demonstration application.
+name: cross-capi-metal
+version: 0.0.1
+source:
+- https://github.com/crossplane-contrib/cross-capi-metal
+keywords:
+- example
+- equinix
+- crossplane
+- capi

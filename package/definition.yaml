@@ -1,0 +1,31 @@
+# Top-Level XRD
+apiVersion: apiextensions.crossplane.io/v1alpha1
+kind: CompositeResourceDefinition
+metadata:
+  name: demos.metal.equinix.com
+spec:
+  group: metal.equinix.com
+  names:
+    kind: Demo
+    plural: Demos
+  versions:
+    - name: v1alpha1
+      served: true
+      referenceable: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              # TODO: we are going to need to be able to set IP address so that
+              # we can pass it to application that talks to database
+              properties:
+                projectId:
+                  type: string
+                  description: Equinix Metal Project ID
+                appVersion:
+                  type: string
+                  description: Version of application to deploy
+              required:
+                - projectId

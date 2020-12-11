@@ -1,0 +1,43 @@
+# Composition with Equinix Metal Machine
+apiVersion: apiextensions.crossplane.io/v1beta1
+kind: Composition
+metadata:
+  name: mysqlinstances.metal.equinix.com
+  labels:
+    plan: full
+    provider: helm
+spec:
+  writeConnectionSecretsToNamespace: crossplane-system
+  compositeTypeRef:
+    apiVersion: mysql.crossplane.io/v1alpha1
+    kind: Instance
+  resources:
+    - base:
+        apiVersion: server.metal.equinix.com/v1alpha2
+        kind: Device
+        spec:
+          forProvider:
+            hostname: crossplane
+            plan: c1.small.x86
+            facility: any
+            operatingSystem: centos_7
+            billingCycle: hourly
+            hardware_reservation_id: next_available
+            locked: false
+            tags:
+            - crossplane
+            - development
+            # TODO: add user data to install mysql and expose database
+      patches:
+        - fromFieldPath: metadata.labels
+          toFieldPath: metadata.labels
+        - fromFieldPath: metadata.annotations
+          toFieldPath: metadata.annotations
+        - fromFieldPath: metadata.uid
+          toFieldPath: spec.writeConnectionSecretToRef.name
+          transforms:
+            - type: string
+              string:
+                fmt: "%s-machine"
+        - fromFieldPath: spec.writeConnectionSecretToRef.namespace
+          toFieldPath: spec.writeConnectionSecretToRef.namespace
