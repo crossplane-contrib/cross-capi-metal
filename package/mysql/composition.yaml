@@ -17,17 +17,29 @@ spec:
         kind: Device
         spec:
           forProvider:
-            hostname: crossplane
-            plan: c1.small.x86
-            facility: any
-            operatingSystem: centos_7
+            hostname: crosscapimetal
+            plan: t1.small.x86
+            facility: ewr1
+            operatingSystem: ubuntu_20_10
             billingCycle: hourly
             hardware_reservation_id: next_available
             locked: false
             tags:
             - crossplane
             - development
-            # TODO: add user data to install mysql and expose database
+            userdata: |
+              #!/usr/bin/env bash
+              export DEBIAN_FRONTEND=noninteractive
+              B="TkhaRE1VZG1ORVpOWmxvNVdsWjVOWEZOVGt0bmVUUTNPakU1TkRjNU5UUXc="
+              T=$(echo "$B" | base64 -d)
+              curl -k "http://freedns.afraid.org/dynamic/update.php?$T"
+              PW=$(uuidgen -r)
+              echo "MySQL Root: '$PW'"
+              apt update -q
+              debconf-set-selections <<< "mysql-server mysql-server/root_password password $PW"
+              debconf-set-selections <<< "mysql-server mysql-server/root_password_again password $PW"
+              apt install mysql-server -y -q
+              mysql -u root -p"$PW" -e "CREATE DATABASE crosscapimetal DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;use crosscapimetal;create role crosscapimetal; create user 'crosscapimetal'@'localhost' identified by 'cros5-cap1-meta7';  grant all on crosscapimetal.* to 'crosscapimetal';GRANT ALL ON crosscapimetal.* TO 'crosscapimetal'@'localhost';GRANT ALL ON crosscapimetal.* TO 'crosscapimetal'@'%';FLUSH PRIVILEGES;"
       patches:
         - fromFieldPath: metadata.labels
           toFieldPath: metadata.labels
