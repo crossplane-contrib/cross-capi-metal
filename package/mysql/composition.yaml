@@ -27,19 +27,38 @@ spec:
             tags:
             - crossplane
             - development
+            # CustomData is stored as a string, available through the metadata.
+            # We can patch this value to keep userdata static.
+            customdata: |
+              {"user": "crosscapimetal", "password": "cros5-cap1-meta7", "dnsToken": "crosscapimetal"}
             userdata: |
               #!/usr/bin/env bash
               export DEBIAN_FRONTEND=noninteractive
-              B="TkhaRE1VZG1ORVpOWmxvNVdsWjVOWEZOVGt0bmVUUTNPakU1TkRjNU5UUXc="
-              T=$(echo "$B" | base64 -d)
+              MD=https://metadata.platformequinix.com/metadata
+
+              # XP-EM stores customdata as string, not structure, so extra jq
+              DATA="$(curl -s $MD | jq -r .customdata | jq -r .)"
+              T="$(echo "$DATA" | jq -r .dnsToken)"
+              U="$(echo "$DATA" | jq -r .user)"
+              P="$(echo "$DATA" | jq -r .password)"
+
+              # Get our hostname updated
               curl -k "http://freedns.afraid.org/dynamic/update.php?$T"
-              PW=$(uuidgen -r)
-              echo "MySQL Root: '$PW'"
+
+              # Prepare config questions
+              ROOTPW=$(uuidgen -r)
+              echo "MySQL Root: '$ROOTPW'"
               apt update -q
-              debconf-set-selections <<< "mysql-server mysql-server/root_password password $PW"
-              debconf-set-selections <<< "mysql-server mysql-server/root_password_again password $PW"
+              debconf-set-selections <<< "mysql-server mysql-server/root_password password $ROOTPW"
+              debconf-set-selections <<< "mysql-server mysql-server/root_password_again password $ROOTPW"
+
+              # Install MySQL, Listen publicly
               apt install mysql-server -y -q
-              mysql -u root -p"$PW" -e "CREATE DATABASE crosscapimetal DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;use crosscapimetal;create role crosscapimetal; create user 'crosscapimetal'@'localhost' identified by 'cros5-cap1-meta7';  grant all on crosscapimetal.* to 'crosscapimetal';GRANT ALL ON crosscapimetal.* TO 'crosscapimetal'@'localhost';GRANT ALL ON crosscapimetal.* TO 'crosscapimetal'@'%';FLUSH PRIVILEGES;"
+              sed -i 's/^bind-address.*/bind-address = 0.0.0.0/' /etc/mysql/mysql.conf.d/mysqld.cnf
+              systemctl restart mysql.service
+
+              # Create requested MySQL super-user
+              mysql -u root -p"$ROOTPW" -e "create user '$U'@'%' identified by '$P';  grant all on *.* to '$U';FLUSH PRIVILEGES;"
       patches:
         - fromFieldPath: metadata.labels
           toFieldPath: metadata.labels
@@ -53,3 +72,4 @@ spec:
                 fmt: "%s-machine"
         - fromFieldPath: spec.writeConnectionSecretToRef.namespace
           toFieldPath: spec.writeConnectionSecretToRef.namespace
+
