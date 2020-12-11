@@ -18,6 +18,26 @@ API](https://github.com/kubernetes-sigs/cluster-api) with infrastructure on
 
 1. Create a control plane cluster. This can be any Kubernetes cluster. We
    recommend starting out with [KIND](https://kind.sigs.k8s.io/).
+
+   ```sh
+   kind create cluster
+   ```
+
+1. Install Crossplane
+
+   ```sh
+   kubectl create namespace crossplane-system
+   helm repo add crossplane-alpha https://charts.crossplane.io/alpha
+   helm install crossplane --namespace crossplane-system crossplane-alpha/crossplane --set alpha.oam.enabled=true
+   ```
+
+1. Install the Crossplane CLI
+
+   ```sh
+   curl -sL https://raw.githubusercontent.com/crossplane/crossplane/release-0.14/install.sh | sh
+   sudo mv kubectl-crossplane /usr/local/bin
+   ```
+
 1. Install CAPI's
    [clusterctl](https://cluster-api.sigs.k8s.io/user/quick-start.html#install-clusterctl).
 1. Initialize Cluster API with the Equinix Metal infrastructure provider (still
@@ -63,15 +83,15 @@ API](https://github.com/kubernetes-sigs/cluster-api) with infrastructure on
    apiVersion: metal.equinix.com/v1beta1
    kind: ProviderConfig
    metadata:
-   name: default
+      name: default
    spec:
-   projectID: $PROJECT_ID
-   credentials:
-      secretRef:
+      projectID: $PROJECT_ID
+      credentials:
          source: Secret
-         namespace: crossplane-system
-         name: equinix-metal-creds
-         key: key
+         secretRef:
+            namespace: crossplane-system
+            name: equinix-metal-creds
+            key: key
    EOS
    ```
 
