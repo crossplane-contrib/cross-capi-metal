@@ -1,0 +1,36 @@
+# Composition of CAPI components and Helm ProviderConfig
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: connection.equinix.metal.capi.crossplane.io
+  labels:
+    provider: equinix-metal
+spec:
+  writeConnectionSecretsToNamespace: crossplane-system
+  compositeTypeRef:
+    apiVersion: capi.crossplane.io/v1alpha1
+    kind: Connection
+  resources:
+    - base:
+        apiVersion: helm.crossplane.io/v1beta1
+        kind: ProviderConfig
+        spec:
+          credentials:
+            source: Secret
+            secretRef:
+              namespace: default
+              name: capi-quickstart-kubeconfig
+              key: value
+      patches:
+        - fromFieldPath: kind
+          toFieldPath: metadata.name
+          transforms:
+            - type: map
+              map:
+                # Setting name to default will make it default ProviderConfig
+                # for any Helm Release.
+                Connection: default
+        - fromFieldPath: spec.kubeconfig
+          toFieldPath: spec.credentials.secretRef.name
+      readinessChecks:
+        - type: None

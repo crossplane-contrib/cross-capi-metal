@@ -1,5 +1,5 @@
 # Composition of CAPI components and Helm ProviderConfig
-apiVersion: apiextensions.crossplane.io/v1alpha1
+apiVersion: apiextensions.crossplane.io/v1
 kind: Composition
 metadata:
   name: packet.cluster.capi.crossplane.io
@@ -8,7 +8,7 @@ metadata:
 spec:
   writeConnectionSecretsToNamespace: crossplane-system
   compositeTypeRef:
-    apiVersion: cluster.capi.crossplane.io/v1alpha1
+    apiVersion: capi.crossplane.io/v1alpha1
     kind: Cluster
   resources:
     - base:
@@ -85,6 +85,12 @@ spec:
             - type: map
               map:
                 Cluster: capi-quickstart-control-plane
+        - fromFieldPath: kind
+          toFieldPath: metadata.namespace
+          transforms:
+            - type: map
+              map:
+                Cluster: default
         - fromFieldPath: spec.projectId
           toFieldPath: spec.kubeadmConfigSpec.postKubeadmCommands[2]
           transforms:
@@ -115,6 +121,12 @@ spec:
             - type: map
               map:
                 Cluster: capi-quickstart-control-plane
+        - fromFieldPath: kind
+          toFieldPath: metadata.namespace
+          transforms:
+            - type: map
+              map:
+                Cluster: default
       readinessChecks:
         - type: None
     - base:
@@ -146,6 +158,12 @@ spec:
             - type: map
               map:
                 Cluster: capi-quickstart
+        - fromFieldPath: kind
+          toFieldPath: metadata.namespace
+          transforms:
+            - type: map
+              map:
+                Cluster: default
       readinessChecks:
         - type: None
     - base:
@@ -156,7 +174,7 @@ spec:
           namespace: default
         spec:
           facility: ewr1
-          projectID: 5yd4thd-5h35-5hwk-1111-125gjej40930
+          projectID: replaceme
       patches:
         - fromFieldPath: kind
           toFieldPath: metadata.name
@@ -164,6 +182,12 @@ spec:
             - type: map
               map:
                 Cluster: capi-quickstart
+        - fromFieldPath: kind
+          toFieldPath: metadata.namespace
+          transforms:
+            - type: map
+              map:
+                Cluster: default
         - fromFieldPath: spec.projectId
           toFieldPath: spec.projectID
       readinessChecks:
@@ -208,6 +232,12 @@ spec:
             - type: map
               map:
                 Cluster: capi-quickstart-worker-a
+        - fromFieldPath: kind
+          toFieldPath: metadata.namespace
+          transforms:
+            - type: map
+              map:
+                Cluster: default
       readinessChecks:
         - type: None
     - base:
@@ -232,6 +262,12 @@ spec:
             - type: map
               map:
                 Cluster: capi-quickstart-worker-a
+        - fromFieldPath: kind
+          toFieldPath: metadata.namespace
+          transforms:
+            - type: map
+              map:
+                Cluster: default
       readinessChecks:
         - type: None
     - base:
@@ -272,6 +308,12 @@ spec:
             - type: map
               map:
                 Cluster: capi-quickstart-worker-a
+        - fromFieldPath: kind
+          toFieldPath: metadata.namespace
+          transforms:
+            - type: map
+              map:
+                Cluster: default
       readinessChecks:
         - type: None
     - base:
@@ -285,7 +327,8 @@ spec:
               # its credentials secret. This another place that we could
               # parameterize the name.
               namespace: default
-              key: capi-quickstart-kubeconfig
+              name: capi-quickstart-kubeconfig
+              key: value
       patches:
         - fromFieldPath: kind
           toFieldPath: metadata.name

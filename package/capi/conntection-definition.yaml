@@ -1,13 +1,13 @@
-# XRD for Kubernetes cluster provisioned using CAPI 
+# XRD for connecting to CAPI cluster
 apiVersion: apiextensions.crossplane.io/v1
 kind: CompositeResourceDefinition
 metadata:
-  name: clusters.capi.crossplane.io
+  name: connections.capi.crossplane.io
 spec:
   group: capi.crossplane.io
   names:
-    kind: Cluster
-    plural: clusters
+    kind: Connection
+    plural: connections
   versions:
   - name: v1alpha1
     served: true
@@ -19,8 +19,8 @@ spec:
           spec:
             type: object
             properties:
-              projectId:
+              kubeconfig:
                 type: string
-                description: Equinix Metal Project ID.
+                description: Name of secret with CAPI Cluster Kubeconfig.
             required:
-            - projectId
+            - kubeconfig
