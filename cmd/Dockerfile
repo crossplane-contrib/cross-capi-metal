@@ -14,7 +14,7 @@ COPY . .
 RUN go mod download
 
 # Build the binary.
-RUN CGO_ENABLED=0 GOOS=linux go build -mod=readonly -v .
+RUN CGO_ENABLED=0 GOOS=linux go build -mod=readonly -v cmd/main.go
 
 # Use the official Alpine image for a lean production container.
 # https://hub.docker.com/_/alpine
@@ -23,7 +23,7 @@ FROM alpine:3
 RUN apk add --no-cache ca-certificates
 
 # Copy the binary to the production image from the builder stage.
-COPY --from=builder app/app ./
+COPY --from=builder app/main ./
 
 # Run the web service on container startup.
-ENTRYPOINT ["/app"]
+ENTRYPOINT ["/main"]
