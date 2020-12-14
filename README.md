@@ -63,7 +63,7 @@ API](https://github.com/kubernetes-sigs/cluster-api) with infrastructure on
 1. Install the Equinix Metal Crossplane Provider
 
    ```sh
-   kubectl crossplane install provider registry.upbound.io/equinix/crossplane-provider-equinix-metal:v0.0.4
+   kubectl crossplane install provider registry.upbound.io/equinix/crossplane-provider-equinix-metal:v0.0.5
    ```
 
 1. Install Cross CAPI Metal package.

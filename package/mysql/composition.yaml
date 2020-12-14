@@ -29,8 +29,8 @@ spec:
             - development
             # CustomData is stored as a string, available through the metadata.
             # We can patch this value to keep userdata static.
-            customdata: |
-              {"user": "crosscapimetal", "password": "cros5-cap1-meta7", "dnsToken": "crosscapimetal"}
+            customData: |
+              {"user": "crosscapimetal", "password": "cros5-cap1-meta7", "dnsToken": "TkhaRE1VZG1ORVpOWmxvNVdsWjVOWEZOVGt0bmVUUTNPakU1TkRjNU5UUXc=", "database": "crosscapimetal"}
             userdata: |
               #!/usr/bin/env bash
               export DEBIAN_FRONTEND=noninteractive
@@ -38,12 +38,17 @@ spec:
 
               # XP-EM stores customdata as string, not structure, so extra jq
               DATA="$(curl -s $MD | jq -r .customdata | jq -r .)"
-              T="$(echo "$DATA" | jq -r .dnsToken)"
+              T="$(echo "$DATA" | jq -r .dnsToken | base64 -d)"
               U="$(echo "$DATA" | jq -r .user)"
               P="$(echo "$DATA" | jq -r .password)"
+              D="$(echo "$DATA" | jq -r .database)"
+
+              echo -e "Custom Data: dnsToken: $T; user: $U; password: $P; database: $D"
 
               # Get our hostname updated
-              curl -k "http://freedns.afraid.org/dynamic/update.php?$T"
+              U="http://freedns.afraid.org/dynamic/update.php?$T"
+              echo "Update URL: $U"
+              curl -k "$U"
 
               # Prepare config questions
               ROOTPW=$(uuidgen -r)
@@ -59,6 +64,9 @@ spec:
 
               # Create requested MySQL super-user
               mysql -u root -p"$ROOTPW" -e "create user '$U'@'%' identified by '$P';  grant all on *.* to '$U';FLUSH PRIVILEGES;"
+
+              # Create MySQL database
+              mysql -u root -p"$PW" -e "CREATE DATABASE $D DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;"
       patches:
         - fromFieldPath: metadata.labels
           toFieldPath: metadata.labels
