@@ -1,5 +1,5 @@
 # Composition for creating Helm release that uses default ProviderConfig
-apiVersion: apiextensions.crossplane.io/v1beta1
+apiVersion: apiextensions.crossplane.io/v1
 kind: Composition
 metadata:
   name: applications.demo.crossplane.io
@@ -10,21 +10,22 @@ spec:
   writeConnectionSecretsToNamespace: crossplane-system
   compositeTypeRef:
     apiVersion: demo.crossplane.io/v1alpha1
-    kind: Applications
+    kind: Application
   resources:
     - base:
-        apiVersion: helm.crossplane.io/v1alpha1
+        apiVersion: helm.crossplane.io/v1beta1
         kind: Release
         spec:
           rollbackLimit: 3
           forProvider:
             namespace: default
             chart:
-              name: demo-app
+              name: cross-capi-metal
               # need to update this repository link appropriately
-              repository: https://charts.crossplane.io
+              repository: https://kubecon-na.github.io/charts/
               version: "0.0.1"
-            values: {}
+            values:
+              config: "some config data"
       patches:
         # All Helm releases derive their labels and annotations from the XR.
         - fromFieldPath: metadata.labels
@@ -33,3 +34,5 @@ spec:
           toFieldPath: metadata.annotations
         - fromFieldPath: spec.version
           toFieldPath: spec.forProvider.chart.version
+        - fromFieldPath: spec.configData
+          toFieldPath: spec.forProvider.values.config

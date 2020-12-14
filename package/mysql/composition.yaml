@@ -1,5 +1,5 @@
 # Composition with Equinix Metal Machine
-apiVersion: apiextensions.crossplane.io/v1beta1
+apiVersion: apiextensions.crossplane.io/v1
 kind: Composition
 metadata:
   name: mysqlinstances.metal.equinix.com
@@ -80,4 +80,5 @@ spec:
                 fmt: "%s-machine"
         - fromFieldPath: spec.writeConnectionSecretToRef.namespace
           toFieldPath: spec.writeConnectionSecretToRef.namespace
-
+        - fromFieldPath: spec.configData
+          toFieldPath: spec.forProvider.customData

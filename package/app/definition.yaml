@@ -1,5 +1,5 @@
 # XRD for deploying app into a Kubernetes cluster
-apiVersion: apiextensions.crossplane.io/v1beta1
+apiVersion: apiextensions.crossplane.io/v1
 kind: CompositeResourceDefinition
 metadata:
   name: applications.demo.crossplane.io
@@ -22,5 +22,9 @@ spec:
               version:
                 type: string
                 description: Application chart version.
+              configData:
+                type: string
+                description: MySQL database config data.
             required:
             - version
+            - configData

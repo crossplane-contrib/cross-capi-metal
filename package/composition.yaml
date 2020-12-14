@@ -1,31 +1,32 @@
-# Composition with the three sub-XRDs we defined
-apiVersion: apiextensions.crossplane.io/v1beta1
+apiVersion: apiextensions.crossplane.io/v1
 kind: Composition
 metadata:
-  name: compositeclusters.aws.platformref.crossplane.io
+  name: mysqlapp.demo.metal.equinix.com
 spec:
   writeConnectionSecretsToNamespace: crossplane-system
   compositeTypeRef:
-    apiVersion: aws.platformref.crossplane.io/v1alpha1
-    kind: CompositeCluster
+    apiVersion: metal.equinix.com/v1alpha1
+    kind: Demo
   resources:
     - base:
         apiVersion: capi.crossplane.io/v1alpha1
-        kind: Cluster
+        kind: Connection
       patches:
-        - fromFieldPath: spec.projectId
-          toFieldPath: spec.projectId
+        - fromFieldPath: spec.kubeconfig
+          toFieldPath: spec.kubeconfig
     - base:
         apiVersion: mysql.crossplane.io/v1alpha1
         kind: Instance
       patches:
-      # TODO: pass IP address
         - fromFieldPath: spec.projectId
           toFieldPath: spec.projectId
+        - fromFieldPath: spec.configData
+          toFieldPath: spec.configData
     - base:
         apiVersion: demo.crossplane.io/v1alpha1
         kind: Application
       patches:
-      # TODO: pass IP address
         - fromFieldPath: spec.appVersion
           toFieldPath: spec.version
+        - fromFieldPath: spec.configData
+          toFieldPath: spec.configData

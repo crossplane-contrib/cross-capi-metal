@@ -6,7 +6,6 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"os"
 
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
@@ -15,6 +14,13 @@ import (
 
 var db *gorm.DB
 var err error
+
+type ConfigData struct {
+	User     string `json:"user"`
+	Password string `json:"password"`
+	Database string `json:"database"`
+	URL      string `json:"url"`
+}
 
 type Attendee struct {
 	First    string `json:"first"`
@@ -32,10 +38,13 @@ func handleRequests() {
 }
 
 func main() {
-	user := os.Getenv("DB_USER")
-	password := os.Getenv("DB_PASSWORD")
-	host := os.Getenv("DB_HOST")
-	db, err = gorm.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s:3306)/capi?charset=utf8&parseTime=True", user, password, host))
+	conf := &ConfigData{
+		User:     "crosscapimetal",
+		Password: "cros5-cap1-meta7",
+		Database: "crosscapimetal",
+		URL:      "crosscapimetal.mooo.com",
+	}
+	db, err = gorm.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s:3306)/%s?charset=utf8&parseTime=True", conf.User, conf.Password, conf.URL, conf.Database))
 	defer db.Close()
 
 	if err != nil {
