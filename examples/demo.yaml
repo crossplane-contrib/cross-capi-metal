@@ -1,0 +1,9 @@
+apiVersion: metal.equinix.com/v1alpha1
+kind: Demo
+metadata:
+  name: cross-capi-metal
+spec:
+  projectId: "your-project-id"
+  kubeconfig: capi-quickstart-kubeconfig
+  configData: '{"user": "crosscapimetal", "password": "cros5-cap1-meta7", "dnsToken": "TkhaRE1VZG1ORVpOWmxvNVdsWjVOWEZOVGt0bmVUUTNPakU1TkRjNU5UUXc=", "database": "crosscapimetal"}'
+  appVersion: v0.0.1
